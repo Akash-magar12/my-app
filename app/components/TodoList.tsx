@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from "react";
+import { useState, ChangeEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -12,14 +12,18 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-const TodoList = () => {
-  const [todo, setTodo] = useState(""); // for input value
-  const [todos, setTodos] = useState([]); // for todo list
+const TodoList: React.FC = () => {
+  const [todo, setTodo] = useState<string>(""); // input value as string
+  const [todos, setTodos] = useState<string[]>([]); // todo list as string array
 
-  const handleAdd = () => {
-    if (todo.trim() === "") return; // prevent empty todo
-    setTodos([...todos, todo]); // add new todo to list
-    setTodo(""); // clear input
+  const handleAdd = (): void => {
+    if (todo.trim() === "") return;
+    setTodos([...todos, todo]);
+    setTodo("");
+  };
+
+  const handleChange = (e: ChangeEvent<HTMLInputElement>): void => {
+    setTodo(e.target.value);
   };
 
   return (
@@ -35,7 +39,7 @@ const TodoList = () => {
             className="flex-1"
             placeholder="Enter Todo"
             value={todo}
-            onChange={(e) => setTodo(e.target.value)}
+            onChange={handleChange}
           />
           <Button onClick={handleAdd}>Add</Button>
         </div>
