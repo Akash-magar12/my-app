@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, ChangeEvent } from "react";
+import { useState, useEffect, ChangeEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -13,8 +13,21 @@ import {
 } from "@/components/ui/card";
 
 const TodoList: React.FC = () => {
-  const [todo, setTodo] = useState<string>(""); // input value as string
-  const [todos, setTodos] = useState<string[]>([]); // todo list as string array
+  const [todo, setTodo] = useState<string>("");
+  const [todos, setTodos] = useState<string[]>([]);
+
+  // Load todos from localStorage when component mounts
+  useEffect(() => {
+    const savedTodos = localStorage.getItem("todos");
+    if (savedTodos) {
+      setTodos(JSON.parse(savedTodos));
+    }
+  }, []);
+
+  // Save todos to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem("todos", JSON.stringify(todos));
+  }, [todos]);
 
   const handleAdd = (): void => {
     if (todo.trim() === "") return;
