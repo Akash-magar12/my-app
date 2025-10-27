@@ -1,6 +1,5 @@
-'use client'
+"use client";
 
-import { useState, useEffect, ChangeEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -11,66 +10,78 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useEffect, useState } from "react";
 
-const TodoList: React.FC = () => {
-  const [todo, setTodo] = useState<string>("");
-  const [todos, setTodos] = useState<string[]>([]);
+export default function TodoList() {
+  const [input, setInput] = useState<string>("");
+  const [todo, setTodo] = useState<string[]>([]);
 
-  // Load todos from localStorage when component mounts
-  useEffect(() => {
-    const savedTodos = localStorage.getItem("todos");
-    if (savedTodos) {
-      setTodos(JSON.parse(savedTodos));
-    }
-  }, []);
-
-  // Save todos to localStorage whenever it changes
-  useEffect(() => {
-    localStorage.setItem("todos", JSON.stringify(todos));
-  }, [todos]);
-
-  const handleAdd = (): void => {
-    if (todo.trim() === "") return;
-    setTodos([...todos, todo]);
-    setTodo("");
+  const addTodo = () => {
+    if (input.trim() === "") return;
+    setTodo((prev) => [...prev, input]);
+    setInput("");
   };
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement>): void => {
-    setTodo(e.target.value);
+  useEffect(() => {
+    const savedTodo = localStorage.getItem("todos");
+    if (savedTodo) setTodo(JSON.parse(savedTodo));
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("todos", JSON.stringify(todo));
+  }, [todo]);
+
+  const handleRemove = (id: number) => {
+    setTodo(todo.filter((_, index) => index !== id));
   };
 
   return (
-    <Card className="w-[400px] mx-auto mt-10 p-4">
+    <Card className="w-[400px] mx-auto mt-10 p-4 shadow-lg">
       <CardHeader>
-        <CardTitle>Todo App</CardTitle>
+        <CardTitle className="text-lg font-semibold">Todo App</CardTitle>
         <CardDescription>Manage your daily tasks</CardDescription>
       </CardHeader>
 
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-6">
+        {/* Input and Button Section */}
         <div className="flex gap-2">
           <Input
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
             className="flex-1"
-            placeholder="Enter Todo"
-            value={todo}
-            onChange={handleChange}
+            placeholder="Enter a task..."
           />
-          <Button onClick={handleAdd}>Add</Button>
+          <Button onClick={addTodo}>Add</Button>
         </div>
 
-        <ul className="space-y-1 text-sm list-disc pl-4">
-          {todos.map((item, index) => (
-            <li key={index}>{item}</li>
-          ))}
-        </ul>
+        {/* Todo List Section */}
+        {todo.length > 0 ? (
+          <ul className="space-y-3">
+            {todo.map((item, id) => (
+              <li
+                key={id}
+                className="flex justify-between items-center p-2 bg-gray-100 rounded-lg"
+              >
+                <span className="text-sm font-medium">{item}</span>
+                <button
+                  onClick={() => handleRemove(id)}
+                  className="text-red-600 font-medium hover:text-red-800 transition"
+                >
+                  Delete
+                </button>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-center text-sm text-muted-foreground">
+            No tasks yet ✨
+          </p>
+        )}
       </CardContent>
 
-      <CardFooter>
-        <p className="text-xs text-muted-foreground">
-          You have {todos.length} task{todos.length !== 1 && "s"}
-        </p>
+      <CardFooter className="text-xs text-muted-foreground justify-center">
+        ✅ {todo.length} task{todo.length !== 1 && "s"} pending
       </CardFooter>
     </Card>
   );
-};
-
-export default TodoList;
+}
