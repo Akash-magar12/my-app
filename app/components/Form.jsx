@@ -12,8 +12,13 @@ function Form() {
   });
 
   const handleChange = (e) => {
-    const { name, value, checked } = e.target;
-    console.log(name, value, checked);
+    const { name, value, type } = e.target;
+    console.log(type);
+    setForm((prev) => ({ ...prev, [name]: value }));
+  };
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log(form);
   };
   return (
     <div className="max-w-md mx-auto mt-10 bg-white p-6 shadow-xl rounded-lg">
@@ -21,7 +26,7 @@ function Form() {
         Complete React Form
       </h2>
 
-      <form className="space-y-5">
+      <form onSubmit={handleSubmit} className="space-y-5">
         {/* Name Input */}
         <div className="flex flex-col gap-2">
           <label className="font-medium">Full Name</label>
@@ -57,7 +62,7 @@ function Form() {
           <div className="flex items-center gap-4">
             <label className="flex items-center gap-1">
               <input
-                checked={form.gender === "Male"}
+                // checked={form.gender === "Male"}
                 type="radio"
                 name="gender"
                 value="Male"
@@ -68,7 +73,7 @@ function Form() {
 
             <label className="flex items-center gap-1">
               <input
-                checked={form.gender === "Female"}
+                // checked={form.gender === "Female"}
                 type="radio"
                 name="gender"
                 onChange={handleChange}
@@ -85,22 +90,40 @@ function Form() {
 
           <div className="grid grid-cols-2 gap-3">
             <label className="flex items-center gap-1">
-              <input type="checkbox" name="hobbies" value="Cricket" /> Cricket
+              <input
+                onChange={handleChange}
+                type="checkbox"
+                name="hobbies"
+                value="Cricket"
+              />{" "}
+              Cricket
             </label>
 
             <label className="flex items-center gap-1">
-              <input type="checkbox" name="hobbies" value="Football" /> Football
+              <input
+                onChange={handleChange}
+                type="checkbox"
+                name="hobbies"
+                value="Football"
+              />{" "}
+              Football
             </label>
 
             <label className="flex items-center gap-1">
-              <input type="checkbox" name="hobbies" value="Gaming" /> Gaming
+              <input
+                onChange={handleChange}
+                type="checkbox"
+                name="hobbies"
+                value="Gaming"
+              />{" "}
+              Gaming
             </label>
           </div>
         </div>
 
         {/* Submit Button */}
         <button
-          type="button"
+          type="submit"
           className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md font-medium"
         >
           Submit
