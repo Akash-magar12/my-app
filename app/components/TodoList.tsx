@@ -15,46 +15,67 @@ import { useEffect, useState } from "react";
 export default function TodoList() {
   const [input, setInput] = useState<string>("");
   const [todo, setTodo] = useState<string[]>([]);
+  const [editIndex, setEditIndex] = useState<number | null>(null);
+  const [editValue, setEditValue] = useState<string>("");
 
-  const addTodo = () => {
-    if (input.trim() === "") return;
-    setTodo((prev) => [...prev, input]);
-    setInput("");
-  };
-
+  // ✅ Load from localStorage on mount
   useEffect(() => {
     const savedTodo = localStorage.getItem("todos");
     if (savedTodo) setTodo(JSON.parse(savedTodo));
   }, []);
 
+  // ✅ Save to localStorage whenever todo changes
   useEffect(() => {
     localStorage.setItem("todos", JSON.stringify(todo));
   }, [todo]);
 
+  // ✅ Add
+  const addTodo = () => {
+    if (input.trim() === "") return;
+    setTodo((prev) => [...prev, input.trim()]);
+    setInput("");
+  };
+
+  // ✅ Delete
   const handleRemove = (id: number) => {
     setTodo(todo.filter((_, index) => index !== id));
+  };
+
+  // ✅ Start Editing
+  const handleEdit = (id: number) => {
+    setEditIndex(id);
+    setEditValue(todo[id]);
+  };
+
+  // ✅ Save Edited Todo
+  const handleSave = (id: number) => {
+    const updated = [...todo];
+    updated[id] = editValue.trim();
+    setTodo(updated);
+    setEditIndex(null);
+    setEditValue("");
   };
 
   return (
     <Card className="w-[400px] mx-auto mt-10 p-4 shadow-lg">
       <CardHeader>
         <CardTitle className="text-lg font-semibold">Todo App</CardTitle>
-        <CardDescription>Manage your daily tasks</CardDescription>
+        <CardDescription>Manage your daily tasks (CRUD)</CardDescription>
       </CardHeader>
 
       <CardContent className="space-y-6">
-        {/* Input and Button Section */}
+        {/* Input Section */}
         <div className="flex gap-2">
           <Input
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            className="flex-1"
             placeholder="Enter a task..."
+            className="flex-1"
           />
           <Button onClick={addTodo}>Add</Button>
         </div>
 
-        {/* Todo List Section */}
+        {/* Todo List */}
         {todo.length > 0 ? (
           <ul className="space-y-3">
             {todo.map((item, id) => (
@@ -62,13 +83,38 @@ export default function TodoList() {
                 key={id}
                 className="flex justify-between items-center p-2 bg-gray-100 rounded-lg"
               >
-                <span className="text-sm font-medium">{item}</span>
-                <button
-                  onClick={() => handleRemove(id)}
-                  className="text-red-600 font-medium hover:text-red-800 transition"
-                >
-                  Delete
-                </button>
+                {editIndex === id ? (
+                  <Input
+                    value={editValue}
+                    onChange={(e) => setEditValue(e.target.value)}
+                    className="flex-1 mr-2"
+                  />
+                ) : (
+                  <span className="text-sm font-medium">{item}</span>
+                )}
+
+                <div className="flex gap-2">
+                  {editIndex === id ? (
+                    <Button size="sm" onClick={() => handleSave(id)}>
+                      Save
+                    </Button>
+                  ) : (
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      onClick={() => handleEdit(id)}
+                    >
+                      Edit
+                    </Button>
+                  )}
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    onClick={() => handleRemove(id)}
+                  >
+                    Delete
+                  </Button>
+                </div>
               </li>
             ))}
           </ul>
@@ -80,7 +126,7 @@ export default function TodoList() {
       </CardContent>
 
       <CardFooter className="text-xs text-muted-foreground justify-center">
-        ✅ {todo.length} task{todo.length !== 1 && "s"} pending
+        ✅ {todo.length} task{todo.length !== 1 && "s"} total
       </CardFooter>
     </Card>
   );
